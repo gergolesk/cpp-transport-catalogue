@@ -25,8 +25,8 @@ namespace transport_catalogue {
 
         using namespace std::string_literals;
 
-        void ParseStopQueries(TransportCatalogue& catalogue, std::vector<std::pair<std::string, std::string>>& stop_queries) {
-            for (auto& stop_query : stop_queries) {
+        void ParseStopQueries(TransportCatalogue& catalogue, const std::vector<std::pair<std::string, std::string>>& stop_queries) {
+            for (auto stop_query : stop_queries) {
                 while (stop_query.second.find("m to "s) != std::string::npos) {
                     size_t distance = std::stoul(detail::GetToken(stop_query.second, "m to "s));
                     std::string to_stop = detail::GetToken(stop_query.second, ", "s);
@@ -35,8 +35,8 @@ namespace transport_catalogue {
             }
         }
 
-        void ParseBusQueries(TransportCatalogue& catalogue, std::vector<std::string>& bus_queries) {
-            for (std::string& bus_query : bus_queries) {
+        void ParseBusQueries(TransportCatalogue& catalogue, const std::vector<std::string>& bus_queries) {
+            for (std::string bus_query : bus_queries) {
                 Bus bus;
 
                 bus.number = detail::GetToken(bus_query, ": "s);
