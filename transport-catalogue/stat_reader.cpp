@@ -7,9 +7,9 @@ namespace transport_catalogue {
 
         using namespace std::string_literals;
 
-        void PrintQueriesData(TransportCatalogue& catalogue, std::vector<std::string>& queries, std::ostream& os) {
+        void PrintQueriesData(const TransportCatalogue& catalogue, const std::vector<std::string>& queries, std::ostream& os) {
 
-            for (std::string& query : queries) {
+            for (const std::string& query : queries) {
                 std::string delim = " "s;
                 size_t pos = query.find(delim);
                 std::string query_type = query.substr(0, pos);
@@ -51,7 +51,7 @@ namespace transport_catalogue {
             }
         }
 
-        void ReadTransportCatalogue(TransportCatalogue& catalogue, std::istream& is, std::ostream& os) {
+        void ReadTransportCatalogue(const TransportCatalogue& catalogue, std::istream& is, std::ostream& os) {
             std::vector<std::string> queries;
 
             std::string line;
@@ -70,4 +70,4 @@ namespace transport_catalogue {
 
     }
 
-} 
+}
