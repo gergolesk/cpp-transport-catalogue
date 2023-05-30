@@ -23,6 +23,13 @@ namespace transport_catalogue {
         double curvature;
     };
 
+    struct RouteInfo {
+        size_t route_stops_count;
+        size_t unique_stops_count;
+        size_t route_length;
+        double curvature;
+    };
+
     struct Stop {
         std::string name;
         geo::Coordinates point;
@@ -57,14 +64,14 @@ namespace transport_catalogue {
         void AddBus(const Bus& bus);
         void AddStop(const Stop& stop);
 
-        const Bus* FindBus(const std::string& name) const;
-        const Stop* FindStop(const std::string& name) const;
-        
+        const Bus* FindBus(const std::string_view name) const;
+        const Stop* FindStop(const std::string_view name) const;
+
         std::tuple<size_t, size_t, size_t, double> GetRouteInfo(const Bus* bus) const;
-        void AddBusThroughStop(const Stop* stop, const std::string& bus_number);
-        const std::set<const Bus*, detail::CompareBuses>* GetBusesThroughStop(const Stop* stop);
-        void AddDistanceBetweenStops(const std::string& from_stop, const size_t distance, const std::string& to_stop);
-        size_t GetDistanceBetweenStops(const std::string& from_stop, const std::string& to_stop);
+        void AddBusThroughStop(const Stop* stop, const std::string_view bus_number);
+        const std::set<const Bus*, detail::CompareBuses>* GetBusesThroughStop(const Stop* stop) const;
+        void AddDistanceBetweenStops(const std::string_view from_stop, const size_t distance, const std::string_view to_stop);
+        size_t GetDistanceBetweenStops(const std::string_view from_stop, const std::string_view to_stop);
 
     private:
 
@@ -76,4 +83,4 @@ namespace transport_catalogue {
         std::unordered_map<std::pair<const Stop*, const Stop*>, size_t, detail::PairHash> index_distances_between_stops_;
     };
 
-} 
+}
