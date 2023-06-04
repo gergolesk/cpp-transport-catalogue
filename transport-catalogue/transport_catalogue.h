@@ -3,7 +3,10 @@
 #include <string>
 #include <deque>
 #include <unordered_map>
+#include <unordered_set>
 #include <set>
+#include <vector>
+#include <iostream>
 
 #include "geo.h"
 
@@ -17,6 +20,8 @@ namespace transport_catalogue {
     struct Bus {
         std::string number;
         RouteType route_type;
+        std::vector<std::string> stops;
+
         size_t route_stops_count;
         size_t unique_stops_count;
         size_t route_length;
@@ -66,12 +71,13 @@ namespace transport_catalogue {
 
         const Bus* FindBus(const std::string_view name) const;
         const Stop* FindStop(const std::string_view name) const;
-
-        std::tuple<size_t, size_t, size_t, double> GetRouteInfo(const Bus* bus) const;
+        
+        const RouteInfo GetRouteInfo(const std::string_view route_number) const;
         void AddBusThroughStop(const Stop* stop, const std::string_view bus_number);
         const std::set<const Bus*, detail::CompareBuses>* GetBusesThroughStop(const Stop* stop) const;
         void AddDistanceBetweenStops(const std::string_view from_stop, const size_t distance, const std::string_view to_stop);
-        size_t GetDistanceBetweenStops(const std::string_view from_stop, const std::string_view to_stop);
+        size_t GetDistanceBetweenStops(const std::string_view from_stop, const std::string_view to_stop) const;
+        size_t GetDistanceBetweenStops(const Stop* from, const Stop* to) const;
 
     private:
 

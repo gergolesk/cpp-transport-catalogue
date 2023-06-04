@@ -3,6 +3,7 @@
 #include "transport_catalogue.h"
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 namespace transport_catalogue {
 

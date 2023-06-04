@@ -18,7 +18,7 @@ namespace transport_catalogue {
                 if (query_type == "Bus"s) {
                     const Bus* bus = catalogue.FindBus(query_data);
                     if (bus != nullptr) {
-                        auto [route_stops_count, unique_stops_count, route_length, curvature] = catalogue.GetRouteInfo(bus);
+                        auto [route_stops_count, unique_stops_count, route_length, curvature] = catalogue.GetRouteInfo(query_data);
                         os << std::setprecision(6) << "Bus "s << query_data << ": "s
                             << route_stops_count << " stops on route, "s
                             << unique_stops_count << " unique stops, "s
