@@ -21,11 +21,6 @@ namespace transport_catalogue {
         std::string number;
         RouteType route_type;
         std::vector<std::string> stops;
-
-        size_t route_stops_count;
-        size_t unique_stops_count;
-        size_t route_length;
-        double curvature;
     };
 
     struct RouteInfo {
