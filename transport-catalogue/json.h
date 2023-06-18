@@ -6,7 +6,6 @@
 #include <vector>
 #include <variant>
 
-using namespace std::string_view_literals;
 
 namespace json {
 
@@ -27,7 +26,7 @@ namespace json {
 
         template<typename ValueType>
         Node(ValueType value)
-            : value_(value)
+            : value_(std::move(value))
         {}
 
         Node()

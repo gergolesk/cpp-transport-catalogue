@@ -1,6 +1,7 @@
 #include "json.h"
 
 using namespace std;
+using namespace std::string_view_literals;
 
 namespace json {
 
