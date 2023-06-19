@@ -9,9 +9,9 @@
 
 class JsonReader {
 public:
-    explicit JsonReader(std::istream& input)
+    JsonReader(std::istream& input)
         : input_(json::Load(input))
-    { }
+    {}
 
     const json::Node& GetBaseRequests() const;
     const json::Node& GetStatRequests() const;
@@ -28,7 +28,7 @@ public:
 
 private:
     json::Document input_;
-    static const json::Node dummy_;
+    json::Node dummy_ = nullptr;
 
     std::tuple<std::string_view, geo::Coordinates, std::map<std::string_view, int>> FillStop(const json::Dict& request_map) const;
     void FillStopDistances(transport_catalogue::TransportCatalogue& catalogue) const;
