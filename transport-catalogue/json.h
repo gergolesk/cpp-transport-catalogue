@@ -22,6 +22,10 @@ namespace json {
     public:
         using variant::variant;
         using Value = variant;
+        
+        Node(Value value) : std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>(value) {
+
+        }
 
         bool IsInt() const {
             return std::holds_alternative<int>(*this);
