@@ -23,7 +23,7 @@ namespace json {
         using variant::variant;
         using Value = variant;
         
-        Node(Value value) : std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>(value) {
+        Node(Value value) : Value(std::move(value)) {
 
         }
 
