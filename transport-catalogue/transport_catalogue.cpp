@@ -51,4 +51,12 @@ namespace transport_catalogue {
         return result;
     }
 
+    const std::map<std::string_view, const Stop*> TransportCatalogue::GetSortedAllStops() const {
+        std::map<std::string_view, const Stop*> result;
+        for (const auto& stop : index_stops_) {
+            result.emplace(stop);
+        }
+        return result;
+    }
+
 } // namespace transport

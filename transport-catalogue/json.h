@@ -22,7 +22,7 @@ namespace json {
     public:
         using variant::variant;
         using Value = variant;
-        
+
         Node(Value value) : Value(std::move(value)) {
 
         }

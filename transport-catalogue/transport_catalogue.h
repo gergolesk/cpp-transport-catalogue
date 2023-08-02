@@ -34,6 +34,7 @@ namespace transport_catalogue {
         void AddDistanceBetweenStops(const Stop* from, const Stop* to, const int distance);
         int GetDistanceBetweenStops(const Stop* from, const Stop* to) const;
         const std::map<std::string_view, const Bus*> GetSortedAllBuses() const;
+        const std::map<std::string_view, const Stop*> GetSortedAllStops() const;
 
     private:
         std::deque<Bus> buses_;
