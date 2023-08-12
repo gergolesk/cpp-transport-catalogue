@@ -47,7 +47,7 @@ bool RequestHandler::IsStopName(const std::string_view stop_name) const {
 }
 
 const std::optional<graph::Router<double>::RouteInfo> RequestHandler::GetOptimalRoute(const std::string_view stop_from, const std::string_view stop_to) const {
-    return router_.FindRoute(stop_from, stop_to);
+    return router_.GetRoute(stop_from, stop_to);
 }
 
 const graph::DirectedWeightedGraph<double>& RequestHandler::GetRouterGraph() const {

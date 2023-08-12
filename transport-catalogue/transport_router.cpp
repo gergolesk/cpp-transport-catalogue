@@ -16,7 +16,7 @@ namespace transport_catalogue {
                     0,
                     vertex_id,
                     ++vertex_id,
-                    static_cast<double>(bus_wait_time_)
+                    static_cast<double>(routing_settings_.bus_wait_time)
                 });
             ++vertex_id;
         }
@@ -43,14 +43,14 @@ namespace transport_catalogue {
                                       j - i,
                                       stop_ids_.at(stop_from->name) + 1,
                                       stop_ids_.at(stop_to->name),
-                                      static_cast<double>(dist_sum) / (bus_velocity_ * (100.0 / 6.0)) });
+                                      static_cast<double>(dist_sum) / (routing_settings_.bus_velocity * (100.0 / 6.0)) });
 
                 if (!bus_info->is_circle) {
                     stops_graph.AddEdge({ bus_info->number,
                                           j - i,
                                           stop_ids_.at(stop_to->name) + 1,
                                           stop_ids_.at(stop_from->name),
-                                          static_cast<double>(dist_sum_inverse) / (bus_velocity_ * (100.0 / 6.0)) });
+                                          static_cast<double>(dist_sum_inverse) / (routing_settings_.bus_velocity * (100.0 / 6.0)) });
                 }
             }
         }
@@ -62,9 +62,38 @@ namespace transport_catalogue {
         return graph_;
     }
 
-    const std::optional<graph::Router<double>::RouteInfo> Router::FindRoute(const std::string_view stop_from, const std::string_view stop_to) const {
+    /*const std::optional<graph::Router<double>::RouteInfo> Router::FindRoute(const std::string_view stop_from, const std::string_view stop_to) const {
+        return router_->BuildRoute(stop_ids_.at(std::string(stop_from)), stop_ids_.at(std::string(stop_to)));
+    }*/
+
+    const std::optional<graph::Router<double>::RouteInfo> Router::GetRoute(const std::string_view stop_from, const std::string_view stop_to) const {
         return router_->BuildRoute(stop_ids_.at(std::string(stop_from)), stop_ids_.at(std::string(stop_to)));
     }
+
+    std::optional<CompletedRoute> Router::FindRoute(const std::string_view stop_from, const std::string_view stop_to) {
+        std::optional<graph::Router<double>::RouteInfo> getted_route = router_ ->BuildRoute(stop_ids_.at(std::string(stop_from)), stop_ids_.at(std::string(stop_to)));
+        
+        if (!getted_route) {
+            return std::nullopt;
+        }
+        if (getted_route->weight < eps) {
+            return CompletedRoute({ 0, {} });
+        }
+        CompletedRoute result;
+        result.total_time = getted_route->weight;
+        result.route.reserve(getted_route->edges.size());
+        for (auto& edge : getted_route->edges) {
+            EdgeInfo& info = edges_.at(edge);
+            result.route.push_back(CompletedRoute::Line{ info.stop,
+                                                        info.bus,
+                                                        double(routing_settings_.bus_wait_time),
+                                                        graph_.GetEdge(edge).weight - routing_settings_.bus_wait_time,
+                                                        info.count });
+
+        }
+        return result;
+    }
+
 
     const graph::DirectedWeightedGraph<double>& Router::GetGraph() const {
         return graph_;
