@@ -1,68 +1,58 @@
 #pragma once
-
-#include "router.h"
+#include "domain.h"
+#include "json.h"
+#include "json_builder.h"
 #include "transport_catalogue.h"
+#include "graph.h"
+#include "router.h"
 
-#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
 
-const double eps = 1e-6;
+namespace transport {
 
-namespace transport_catalogue {
+    class Router {
+    public:
+        Router() = default;
 
-	struct RoutingSettings {
-		int bus_wait_time = 0;
-		double bus_velocity = 0.0;
-	};
+        Router(const json::Node& settings_node);
+        Router(const json::Node& settings_node, const Catalogue& tcat);
+        Router(const json::Node& settings_node,
+            graph::DirectedWeightedGraph<double> graph,
+            std::map<std::string, graph::VertexId> stop_ids);
 
-	struct EdgeInfo {
-		const Stop* stop;
-		const Bus* bus;
-		int count;
-	};
+        void SetGraph(graph::DirectedWeightedGraph<double>&& graph,
+            std::map<std::string, graph::VertexId>&& stop_ids);
 
-	struct CompletedRoute {
-		struct Line {
-			const Stop* stop;
-			const Bus* bus;
-			double wait_time;
-			double run_time;
-			int count_stops;
-		};
-		double total_time;
-		std::vector<Line> route;
-	};
+        const graph::DirectedWeightedGraph<double>& BuildGraph(const Catalogue& tcat);
 
-	class Router {
-	public:
-		Router() = default;
+        json::Array GetEdgesItems(const std::vector<graph::EdgeId>& edges) const;
 
-		Router(const int bus_wait_time, const double bus_velocity) {
-			routing_settings_.bus_wait_time = bus_wait_time;
-			routing_settings_.bus_velocity = bus_velocity;
-		}
+        std::optional<graph::Router<double>::RouteInfo> GetRouteInfo(const Stop* from, const Stop* to) const;
 
-		Router(const Router& settings, const TransportCatalogue& catalogue) {
-			//bus_wait_time_ = settings.bus_wait_time_;
-			//bus_velocity_ = settings.bus_velocity_;
-			routing_settings_ = settings.routing_settings_;
+        size_t GetGraphVertexCount();
 
-			BuildGraph(catalogue);
-		}
+        const std::map<std::string, graph::VertexId>& GetStopIds() const;
 
-		const graph::DirectedWeightedGraph<double>& BuildGraph(const TransportCatalogue& catalogue);
-		//const std::optional<graph::Router<double>::RouteInfo> FindRoute(const std::string_view stop_from, const std::string_view stop_to) const;
-		const std::optional<graph::Router<double>::RouteInfo> GetRoute(const std::string_view stop_from, const std::string_view stop_to) const;
-		std::optional<CompletedRoute> FindRoute(const std::string_view stop_from, const std::string_view stop_to);
-		const graph::DirectedWeightedGraph<double>& GetGraph() const;
+        const graph::DirectedWeightedGraph<double>& GetGraph() const;
 
-	private:
-		//int bus_wait_time_ = 0;
-		//double bus_velocity_ = 0.0;
-		RoutingSettings routing_settings_;
-		graph::DirectedWeightedGraph<double> graph_;
-		std::map<std::string, graph::VertexId> stop_ids_;
-		std::unordered_map<graph::EdgeId, EdgeInfo> edges_;
-		std::unique_ptr<graph::Router<double>> router_;
-	};
+        json::Node GetSettings() const;
 
-}	
+        ~Router() {
+            delete router_ptr_;
+        }
+
+    private:
+        int bus_wait_time_ = 0;
+        double bus_velocity_ = 0;
+
+        graph::DirectedWeightedGraph<double> graph_;
+        std::map<std::string, graph::VertexId> stop_ids_;
+
+        graph::Router<double>* router_ptr_ = nullptr;
+
+        void SetSettings(const json::Node& settings_node);
+    };
+
+} // namespace transport

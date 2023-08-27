@@ -1,11 +1,10 @@
-﻿#include "json.h"
+#include "json.h"
 
 #include <iterator>
 
 namespace json {
 
     namespace {
-
         using namespace std::literals;
 
         Node LoadNode(std::istream& input);
@@ -21,7 +20,6 @@ namespace json {
 
         Node LoadArray(std::istream& input) {
             std::vector<Node> result;
-
             for (char c; input >> c && c != ']';) {
                 if (c != ',') {
                     input.putback(c);
@@ -36,7 +34,6 @@ namespace json {
 
         Node LoadDict(std::istream& input) {
             Dict dict;
-
             for (char c; input >> c && c != '}';) {
                 if (c == '"') {
                     std::string key = LoadString(input).AsString();
@@ -135,8 +132,7 @@ namespace json {
 
         Node LoadNumber(std::istream& input) {
             std::string parsed_num;
-
-            // Ñ÷èòûâàåò â parsed_num î÷åðåäíîé ñèìâîë èç input
+            // Считывает в parsed_num очередной символ из input
             auto read_char = [&parsed_num, &input] {
                 parsed_num += static_cast<char>(input.get());
                 if (!input) {
@@ -144,7 +140,7 @@ namespace json {
                 }
             };
 
-            // Ñ÷èòûâàåò îäíó èëè áîëåå öèôð â parsed_num èç input
+            // Считывает одну или более цифр в parsed_num из input
             auto read_digits = [&input, read_char] {
                 if (!std::isdigit(input.peek())) {
                     throw ParsingError("A digit is expected"s);
@@ -157,24 +153,24 @@ namespace json {
             if (input.peek() == '-') {
                 read_char();
             }
-            // Ïàðñèì öåëóþ ÷àñòü ÷èñëà
+            // Парсим целую часть числа
             if (input.peek() == '0') {
                 read_char();
-                // Ïîñëå 0 â JSON íå ìîãóò èäòè äðóãèå öèôðû
+                // После 0 в JSON не могут идти другие цифры
             }
             else {
                 read_digits();
             }
 
             bool is_int = true;
-            // Ïàðñèì äðîáíóþ ÷àñòü ÷èñëà
+            // Парсим дробную часть числа
             if (input.peek() == '.') {
                 read_char();
                 read_digits();
                 is_int = false;
             }
 
-            // Ïàðñèì ýêñïîíåíöèàëüíóþ ÷àñòü ÷èñëà
+            // Парсим экспоненциальную часть числа
             if (int ch = input.peek(); ch == 'e' || ch == 'E') {
                 read_char();
                 if (ch = input.peek(); ch == '+' || ch == '-') {
@@ -186,13 +182,13 @@ namespace json {
 
             try {
                 if (is_int) {
-                    // Ñíà÷àëà ïðîáóåì ïðåîáðàçîâàòü ñòðîêó â int
+                    // Сначала пробуем преобразовать строку в int
                     try {
                         return std::stoi(parsed_num);
                     }
                     catch (...) {
-                        // Â ñëó÷àå íåóäà÷è, íàïðèìåð, ïðè ïåðåïîëíåíèè
-                        // êîä íèæå ïîïðîáóåò ïðåîáðàçîâàòü ñòðîêó â double
+                        // В случае неудачи, например, при переполнении
+                        // код ниже попробует преобразовать строку в double
                     }
                 }
                 return std::stod(parsed_num);
@@ -215,12 +211,12 @@ namespace json {
             case '"':
                 return LoadString(input);
             case 't':
-                // Àòðèáóò [[fallthrough]] (ïðîâàëèòüñÿ) íè÷åãî íå äåëàåò, è ÿâëÿåòñÿ
-                // ïîäñêàçêîé êîìïèëÿòîðó è ÷åëîâåêó, ÷òî çäåñü ïðîãðàììèñò ÿâíî çàäóìûâàë
-                // ðàçðåøèòü ïåðåõîä ê èíñòðóêöèè ñëåäóþùåé âåòêè case, à íå ñëó÷àéíî çàáûë
-                // íàïèñàòü break, return èëè throw.
-                // Â äàííîì ñëó÷àå, âñòðåòèâ t èëè f, ïåðåõîäèì ê ïîïûòêå ïàðñèíãà
-                // ëèòåðàëîâ true ëèáî false
+                // Атрибут [[fallthrough]] (провалиться) ничего не делает, и является
+                // подсказкой компилятору и человеку, что здесь программист явно задумывал
+                // разрешить переход к инструкции следующей ветки case, а не случайно забыл
+                // написать break, return или throw.
+                // В данном случае, встретив t или f, переходим к попытке парсинга
+                // литералов true либо false
                 [[fallthrough]];
             case 'f':
                 input.putback(c);
@@ -268,7 +264,7 @@ namespace json {
                     out << "\\n"sv;
                     break;
                 case '"':
-                    // Ñèìâîëû " è \ âûâîäÿòñÿ êàê \" èëè \\, ñîîòâåòñòâåííî
+                    // Символы " и \ выводятся как \" или \\, соответственно
                     [[fallthrough]];
                 case '\\':
                     out.put('\\');
@@ -291,9 +287,9 @@ namespace json {
             ctx.out << "null"sv;
         }
 
-        // Â ñïåöèàëèçàöè øàáëîíà PrintValue äëÿ òèïà bool ïàðàìåòð value ïåðåäà¸òñÿ
-        // ïî êîíñòàíòíîé ññûëêå, êàê è â îñíîâíîì øàáëîíå.
-        // Â êà÷åñòâå àëüòåðíàòèâû ìîæíî èñïîëüçîâàòü ïåðåãðóçêó:
+        // В специализаци шаблона PrintValue для типа bool параметр value передаётся
+        // по константной ссылке, как и в основном шаблоне.
+        // В качестве альтернативы можно использовать перегрузку:
         // void PrintValue(bool value, const PrintContext& ctx);
         template <>
         void PrintValue<bool>(const bool& value, const PrintContext& ctx) {
@@ -362,4 +358,4 @@ namespace json {
         PrintNode(doc.GetRoot(), PrintContext{ output });
     }
 
-} // namespace json
+}  // namespace json

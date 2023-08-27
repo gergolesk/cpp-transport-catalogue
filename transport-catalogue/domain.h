@@ -3,29 +3,28 @@
 #include "geo.h"
 
 #include <string>
-#include <vector>
-#include <set>
 #include <unordered_map>
+#include <vector>
+#include <string_view>
 
-namespace transport_catalogue {
+namespace domain {
 
     struct Stop {
+        Stop(const std::string& name, const geo::Coordinates& coordinates);
+        int GetDistance(Stop* to);
+
         std::string name;
-        geo::Coordinates point;
-        std::set<std::string> buses_by_stop;
+        geo::Coordinates coordinates;
+        std::unordered_map<std::string_view, int> stop_distances;
     };
 
     struct Bus {
-        std::string number;
-        std::vector<const Stop*> stops;
+        Bus(const std::string& name, std::vector<Stop*> stops, bool is_circle);
+
+        std::string name;
+        std::vector<Stop*> stops;
         bool is_circle;
+        Stop* final_stop = nullptr;
     };
 
-    struct RouteInfo {
-        size_t route_stops_count;
-        size_t unique_stops_count;
-        double route_length;
-        double curvature;
-    };
-
-} // namespace transport
+} //namespace domain

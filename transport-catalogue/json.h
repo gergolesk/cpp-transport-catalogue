@@ -5,6 +5,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <utility>
 
 namespace json {
 
@@ -22,10 +23,6 @@ namespace json {
     public:
         using variant::variant;
         using Value = variant;
-
-        Node(Value value) : Value(std::move(value)) {
-
-        }
 
         bool IsInt() const {
             return std::holds_alternative<int>(*this);
@@ -109,10 +106,6 @@ namespace json {
         }
 
         const Value& GetValue() const {
-            return *this;
-        }
-
-        Value& GetValue() {
             return *this;
         }
     };

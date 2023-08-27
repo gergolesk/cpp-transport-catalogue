@@ -34,6 +34,7 @@ namespace graph {
             Weight weight;
             std::optional<EdgeId> prev_edge;
         };
+        
         using RoutesInternalData = std::vector<std::vector<std::optional<RouteInternalData>>>;
 
         void InitializeRoutesInternalData(const Graph& graph) {
@@ -59,7 +60,7 @@ namespace graph {
             const Weight candidate_weight = route_from.weight + route_to.weight;
             if (!route_relaxing || candidate_weight < route_relaxing->weight) {
                 route_relaxing = { candidate_weight,
-                                    route_to.prev_edge ? route_to.prev_edge : route_from.prev_edge };
+                                  route_to.prev_edge ? route_to.prev_edge : route_from.prev_edge };
             }
         }
 
@@ -84,10 +85,8 @@ namespace graph {
     Router<Weight>::Router(const Graph& graph)
         : graph_(graph)
         , routes_internal_data_(graph.GetVertexCount(),
-            std::vector<std::optional<RouteInternalData>>(graph.GetVertexCount()))
-    {
+          std::vector<std::optional<RouteInternalData>>(graph.GetVertexCount())) {
         InitializeRoutesInternalData(graph);
-
         const size_t vertex_count = graph.GetVertexCount();
         for (VertexId vertex_through = 0; vertex_through < vertex_count; ++vertex_through) {
             RelaxRoutesInternalDataThroughVertex(vertex_count, vertex_through);
